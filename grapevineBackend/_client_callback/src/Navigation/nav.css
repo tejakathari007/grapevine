@@ -1,0 +1,10 @@
+.navbar {
+  transition: background-color 0.5s ease;
+  position: fixed;
+  width: 100vw;
+}
+
+.nav-link {
+  font-weight: 600 !important;
+  text-shadow: 0.5px 0.5px #000;
+}

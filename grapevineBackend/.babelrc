@@ -1,0 +1,14 @@
+{
+  "presets": ["@babel/preset-env"],
+  "plugins": [
+    [
+      "babel-plugin-module-resolver",
+      {
+        "alias": {
+          "root": "./",
+          "middleware": "./middleware"
+        }
+      }
+    ]
+  ]
+}

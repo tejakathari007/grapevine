@@ -1,0 +1,10 @@
+.inputText {
+  width: 100%;
+  margin: 20px 0px;
+  color: rgb(35, 33, 33);
+  border-width: 0px;
+  border-bottom: 2px #ff00ff solid;
+}
+.inputText:focus {
+  outline: none;
+}

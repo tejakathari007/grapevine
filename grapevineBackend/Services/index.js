@@ -1,0 +1,17 @@
+module.exports = {
+  users: require("./User"),
+  posts: require("./Post"),
+  likes: require("./Likes"),
+  friends: require("./Friendship"),
+  comments: require("./Comment"),
+  commentLikes: require("./CommentLike"),
+  chatrooms: require("./Chatroom"),
+  chats: require("./Chats"),
+  tiktoks: require("./TiktokPost"),
+  admins: require("./Admin"),
+  notifications: require("./Notification"),
+  activities: require("./Activity"),
+  searchHistories: require("./SearchHistory"),
+  googles: require("./Google"),
+  instagrams: require("./Instagram"),
+};

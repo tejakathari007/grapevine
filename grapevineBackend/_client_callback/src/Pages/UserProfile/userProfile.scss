@@ -1,0 +1,23 @@
+.userProfile {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  h1 {
+    color: #fff;
+  }
+  .wrapper {
+    width: 30%;
+    background-color: #fff;
+    height: 80vh;
+    padding: 0px 20px;
+    overflow-y: scroll;
+    -ms-overflow-style: none; /* for Internet Explorer, Edge */
+    scrollbar-width: none;
+    border-radius: 20px;
+  }
+  .wrapper::-webkit-scrollbar {
+    display: none; /* for Chrome, Safari, and Opera */
+  }
+}

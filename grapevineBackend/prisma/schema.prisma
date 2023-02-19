@@ -1,0 +1,319 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id       Int    @id @default(autoincrement())
+  uuid     String @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  email    String @unique @db.VarChar(200)
+  password String @db.VarChar(255)
+  username String @unique @db.VarChar(200)
+
+  @@map("admin")
+}
+
+model Login {
+  id             Int          @id @default(autoincrement())
+  uuid           String       @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  email          String       @unique @db.VarChar(200)
+  password       String       @db.VarChar(255)
+  block          Boolean      @default(false)
+  blocked_reason String       @default(" ")
+  user           UserProfile?
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+
+  @@map("login")
+}
+
+model BrandDescription {
+  id   Int           @default(autoincrement())
+  uuid String        @id @default(uuid())
+  name String
+  user UserProfile[]
+}
+
+model DescribesYou {
+  id   Int           @default(autoincrement())
+  uuid String        @id @default(uuid())
+  name String
+  user UserProfile[]
+}
+
+model UserProfile {
+  id                   Int                @default(autoincrement())
+  login_uuid           String             @unique
+  uuid                 String             @id @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  grapes               Int                @default(4)
+  about                String             @default(" ")
+  description          String             @default(" ")
+  username             String             @default(" ") @db.VarChar(255)
+  fname                String             @default(" ") @db.VarChar(255)
+  lname                String             @default(" ") @db.VarChar(255)
+  address              String             @default(" ") @db.VarChar(255)
+  engagement_type      String             @default(" ") @db.VarChar(255) //"creator" "brand", "exploring", "agency","employee"
+  brand_name           String             @default(" ") @db.VarChar(255)
+  agency_name          String             @default(" ") @db.VarChar(255)
+  profile_pic          String             @default(" ") @db.VarChar(255)
+  dob                  DateTime
+  phone                String             @unique
+  instagram_token      String             @default(" ") @db.VarChar(255)
+  tiktok               String             @default(" ") @db.VarChar(255)
+  tiktok_refresh       String             @default(" ") @db.VarChar(255)
+  tiktok_open_id       String             @default(" ") @db.VarChar(255)
+  google_token         String             @default(" ") @db.VarChar(255)
+  google_refresh_token String             @default(" ") @db.VarChar(255)
+  blocked              Boolean            @default(false)
+  blocked_reason       String             @default(" ")
+  gender               String             @default(" ") @db.VarChar(255)
+  ethinicity           String             @default(" ") @db.VarChar(255)
+  collaborate          Boolean            @default(false)
+  brand_type           String             @default(" ") @db.VarChar(255)
+  intrests             String[]
+  featured             Boolean            @default(false)
+  position             String?
+  employerUuid         String?
+  employeeRole         String?
+  employeeConfirm      Boolean            @default(false)
+  comments             Comments[]
+  comments_like        CommentLikes[]
+  posts                Posts[]
+  activities           Activity[]
+  likes                Likes[]
+  login                Login              @relation(fields: [login_uuid], references: [uuid])
+  tiktokPost           TiktokPost[]
+  notifications        Notification[]
+  searchHistory        SearchHistory[]
+  chatroom             ChatRoom[]
+  employee             UserProfile[]      @relation("Employee")
+  employer             UserProfile?       @relation("Employee", fields: [employerUuid], references: [uuid])
+  created_at           DateTime           @default(now())
+  updated_at           DateTime           @updatedAt
+  branddescription     BrandDescription[]
+  decribesYou          DescribesYou[]
+  paymentHistory       PaymentHistory[]
+  @@map("userprofile")
+}
+
+
+model PaymentHistory{
+  id               Int            @id @default(autoincrement())
+  uuid             String         @unique @default(uuid())
+  user_uuid        String
+  user             UserProfile @relation(fields: [user_uuid],references: [uuid])
+  amount           Int
+  grapes           Int
+  status           String         @default("pending")
+  sessionId        String         @default(" ")
+  created_at       DateTime       @default(now())
+  updated_at       DateTime       @updatedAt
+}
+model Posts {
+  id               Int            @id @default(autoincrement())
+  user_uuid        String
+  uuid             String         @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  title            String         @default(" ") @db.VarChar(255)
+  post_type        String         @default("text") @db.VarChar(255) // link, upload image
+  post             String         @default(" ") @db.VarChar(1000000)
+  image_url        String         @default(" ") @db.VarChar(1000000)
+  video_url        String         @default(" ") @db.VarChar(1000000)
+  edited           String         @default(" ") @db.VarChar(1000000)
+  hide             Boolean        @default(false)
+  blocked          Boolean        @default(false)
+  blocked_reason   String         @default(" ")
+  username         String         @default(" ")
+  inspo            String         @default(" ")
+  keys             String[]
+  user             UserProfile    @relation(fields: [user_uuid], references: [uuid])
+  likes            Likes[]
+  comments         Comments[]
+  comments_likes   CommentLikes[]
+  products         Product[]
+  peoples          People[]
+  created_at       DateTime       @default(now())
+  updated_at       DateTime       @updatedAt
+  shared_post_uuid String?
+  featured         Boolean        @default(false)
+
+  @@map("posts")
+}
+
+model Likes {
+  id         Int         @id @default(autoincrement())
+  post_uuid  String
+  user_uuid  String
+  uuid       String      @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  disliked   Boolean     @default(false)
+  post       Posts       @relation(fields: [post_uuid], references: [uuid])
+  user       UserProfile @relation(fields: [user_uuid], references: [uuid])
+  hide       Boolean     @default(false)
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+
+  @@unique([post_uuid, user_uuid], name: "userPostIds")
+  @@map("likes")
+}
+
+model Comments {
+  id             Int            @id @default(autoincrement())
+  post_uuid      String
+  user_uuid      String
+  uuid           String         @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  comment_text   String         @default(" ") @db.VarChar(1000000)
+  comment_type   String         @default("text") @db.VarChar(255)
+  hide           Boolean        @default(false)
+  blocked        Boolean        @default(false)
+  blocked_reason String         @default(" ")
+  post           Posts          @relation(fields: [post_uuid], references: [uuid])
+  user           UserProfile    @relation(fields: [user_uuid], references: [uuid])
+  CommentLikes   CommentLikes[]
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
+
+  @@map("comments")
+}
+
+model CommentLikes {
+  id           Int         @id @default(autoincrement())
+  uuid         String      @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  comment_uuid String
+  user_uuid    String
+  post_uuid    String
+  disliked     Boolean     @default(false)
+  post         Posts       @relation(fields: [post_uuid], references: [uuid])
+  user         UserProfile @relation(fields: [user_uuid], references: [uuid])
+  comment      Comments    @relation(fields: [comment_uuid], references: [uuid])
+  created_at   DateTime    @default(now())
+  updated_at   DateTime    @updatedAt
+
+  @@unique([comment_uuid, user_uuid], name: "commentLikeId")
+  @@map("commentlikes")
+}
+
+model FriendShip {
+  id           Int      @id @default(autoincrement())
+  user_request String
+  user_accept  String
+  uuid         String   @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  type         String   @default("connect") @db.VarChar(255) //collaborate
+  accepted     Boolean  @default(false)
+  ignored      Boolean  @default(false)
+  blocked      Boolean  @default(false)
+  blocked_by   String   @default(" ")
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@unique([user_request, user_accept], name: "compositKeyid")
+  @@map("friendship")
+}
+
+model ChatRoom {
+  id         Int           @id @default(autoincrement())
+  uuid       String        @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  valid_room Boolean       @default(false)
+  name       String        @default(" ")
+  chats      Chats[]
+  user       UserProfile[]
+  created_at DateTime      @default(now())
+  updated_at DateTime      @updatedAt
+}
+
+model Chats {
+  id         Int      @id @default(autoincrement())
+  uuid       String   @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  from_user  String
+  content    String   @default(" ")
+  sent_at    DateTime @default(now())
+  chatRoom   ChatRoom @relation(fields: [room_uuid], references: [uuid])
+  room_uuid  String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model TiktokPost {
+  id          Int         @id @default(autoincrement())
+  uuid        String      @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  embed_link  String      @default(" ")
+  like_count  Int         @default(0)
+  share_count Int         @default(0)
+  title       String      @default(" ")
+  view_count  Int         @default(0)
+  user_uuid   String
+  user        UserProfile @relation(fields: [user_uuid], references: [uuid])
+}
+
+model Notification {
+  id                 Int         @id @default(autoincrement())
+  uuid               String      @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  type               String      @default("post")
+  from_user_uuid     String      @default("")
+  from_user_username String      @default("")
+  action_uuid        String
+  user_uuid          String
+  user               UserProfile @relation(fields: [user_uuid], references: [uuid])
+  created_at         DateTime    @default(now())
+  updated_at         DateTime    @updatedAt
+}
+
+model Activity {
+  id               Int         @id @default(autoincrement())
+  uuid             String      @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  type             String      @default("post")
+  to_user_uuid     String      @default("")
+  to_user_username String      @default("")
+  action_uuid      String
+  user             UserProfile @relation(fields: [user_uuid], references: [uuid])
+  user_uuid        String
+  user_uuids       String[]
+  keys             String[]
+  created_at       DateTime    @default(now())
+  updated_at       DateTime    @updatedAt
+}
+
+model SearchHistory {
+  id               Int         @id @default(autoincrement())
+  uuid             String      @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  user_uuid        String
+  user             UserProfile @relation(fields: [user_uuid], references: [uuid])
+  search_user_uuid String      @default(" ")
+  search_user_pic  String      @default(" ")
+  username         String
+  count            Int         @default(1)
+  created_at       DateTime    @default(now())
+  updated_at       DateTime    @updatedAt
+}
+
+model Product {
+  id         Int      @id @default(autoincrement())
+  uuid       String   @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  name       String
+  price      Int      @default(25)
+  image      String   @default(" ")
+  link       String   @default("")
+  post_uuid  String
+  post       Posts    @relation(fields: [post_uuid], references: [uuid])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model People {
+  id         Int      @id @default(autoincrement())
+  uuid       String   @unique @default(dbgenerated("'<(10,4),11>'::circle"))
+  role       String
+  network    String   @default(" ")
+  image      String   @default(" ")
+  link       String   @default("")
+  post_uuid  String
+  post       Posts    @relation(fields: [post_uuid], references: [uuid])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
